@@ -2,19 +2,13 @@ package langcompiler;
 
 import langcompiler.ast.*;
 import java.util.stream.Collectors;
+import java.util.List;
+import java.util.ArrayList;
 
 public class AstBuilder extends LangBaseVisitor<Node> {
 
     @Override
     public Node visitProg(LangParser.ProgContext ctx) {
-        if (ctx.getChild(0) instanceof LangParser.CmdContext) {
-            return new Program(
-                    ctx.cmd().stream()
-                            .map(this::visit)
-                            .filter(java.util.Objects::nonNull)
-                            .collect(Collectors.toList())
-            );
-        }
         return new Program(
                 ctx.children.stream()
                         .map(this::visit)
@@ -39,15 +33,35 @@ public class AstBuilder extends LangBaseVisitor<Node> {
     }
 
     @Override
+    public Node visitLValueArray(LangParser.LValueArrayContext ctx) {
+        LValue lvalue = (LValue) visit(ctx.lvalue());
+        Exp index = (Exp) visit(ctx.exp());
+        return new LValueArray(lvalue, index);
+    }
+
+    @Override
+    public Node visitLValueField(LangParser.LValueFieldContext ctx) {
+        LValue lvalue = (LValue) visit(ctx.lvalue());
+        String fieldName = ctx.ID().getText();
+        return new LValueField(lvalue, fieldName);
+    }
+
+    @Override
     public Node visitPrimaryExpLiteral(LangParser.PrimaryExpLiteralContext ctx) {
         if (ctx.literal().INT() != null) {
             return new IntLiteral(Integer.parseInt(ctx.literal().INT().getText()));
+        }
+        if (ctx.literal().FLOAT() != null) {
+            return new FloatLiteral(Double.parseDouble(ctx.literal().FLOAT().getText()));
         }
         if (ctx.literal().TRUE() != null) {
             return new BoolLiteral(true);
         }
         if (ctx.literal().FALSE() != null) {
             return new BoolLiteral(false);
+        }
+        if (ctx.literal().NULL() != null) {
+            return new NullLiteral();
         }
         // MODIFICADO: Lógica robusta para tratar caracteres e escapes
         if (ctx.literal().CHAR() != null) {
@@ -153,11 +167,22 @@ public class AstBuilder extends LangBaseVisitor<Node> {
 
     @Override
     public Node visitCmdFunCall(LangParser.CmdFunCallContext ctx) {
-        // Simplificação para ignorar a chamada `main()` nos testes atuais
-        if(ctx.ID().getText().equals("main")){
-            return visit(ctx.parent.getChild(ctx.parent.getChildCount() - 1));
+        String name = ctx.ID().getText();
+        List<Exp> arguments = new ArrayList<>();
+        if (ctx.exps() != null) {
+            arguments = ctx.exps().exp().stream()
+                    .map(expCtx -> (Exp) visit(expCtx))
+                    .collect(Collectors.toList());
         }
-        return super.visitCmdFunCall(ctx);
+        
+        List<LValue> returnTargets = new ArrayList<>();
+        if (ctx.lvalue() != null) {
+            returnTargets = ctx.lvalue().stream()
+                    .map(lvalCtx -> (LValue) visit(lvalCtx))
+                    .collect(Collectors.toList());
+        }
+        
+        return new FunCallCmd(name, arguments, returnTargets);
     }
 
     @Override
@@ -180,5 +205,85 @@ public class AstBuilder extends LangBaseVisitor<Node> {
     @Override
     public Node visitCmdBlock(LangParser.CmdBlockContext ctx) {
         return visit(ctx.block());
+    }
+
+    @Override
+    public Node visitCmdRead(LangParser.CmdReadContext ctx) {
+        LValue lvalue = (LValue) visit(ctx.lvalue());
+        return new ReadCmd(lvalue);
+    }
+
+    @Override
+    public Node visitCmdIterate(LangParser.CmdIterateContext ctx) {
+        LangParser.ItcondContext itcondCtx = ctx.itcond();
+        String varName = null;
+        Exp condition = null;
+        
+        if (itcondCtx.ID() != null) {
+            // Caso ID ':' exp
+            varName = itcondCtx.ID().getText();
+            condition = (Exp) visit(itcondCtx.exp());
+        } else {
+            // Caso apenas exp
+            condition = (Exp) visit(itcondCtx.exp());
+        }
+        
+        Cmd body = (Cmd) visit(ctx.cmd());
+        return new IterateCmd(varName, condition, body);
+    }
+
+    @Override
+    public Node visitPrimaryExpNew(LangParser.PrimaryExpNewContext ctx) {
+        String type = ctx.type().getText();
+        Exp size = null;
+        if (ctx.exp() != null) {
+            size = (Exp) visit(ctx.exp());
+        }
+        return new NewExp(type, size);
+    }
+
+    @Override
+    public Node visitFun(LangParser.FunContext ctx) {
+        String name = ctx.ID().getText();
+        
+        List<Parameter> parameters = new ArrayList<>();
+        if (ctx.params() != null) {
+            for (int i = 0; i < ctx.params().ID().size(); i++) {
+                String paramName = ctx.params().ID(i).getText();
+                String paramType = ctx.params().type(i).getText();
+                parameters.add(new Parameter(paramName, paramType));
+            }
+        }
+        
+        List<String> returnTypes = new ArrayList<>();
+        if (ctx.type() != null) {
+            returnTypes = ctx.type().stream()
+                    .map(typeCtx -> typeCtx.getText())
+                    .collect(Collectors.toList());
+        }
+        
+        Cmd body = (Cmd) visit(ctx.cmd());
+        return new FunDef(name, parameters, returnTypes, body);
+    }
+
+    @Override
+    public Node visitCmdReturn(LangParser.CmdReturnContext ctx) {
+        List<Exp> expressions = ctx.exp().stream()
+                .map(expCtx -> (Exp) visit(expCtx))
+                .collect(Collectors.toList());
+        return new ReturnCmd(expressions);
+    }
+
+    @Override
+    public Node visitPrimaryExpFunCallReturn(LangParser.PrimaryExpFunCallReturnContext ctx) {
+        String name = ctx.ID().getText();
+        List<Exp> arguments = new ArrayList<>();
+        if (ctx.exps() != null) {
+            arguments = ctx.exps().exp().stream()
+                    .map(expCtx -> (Exp) visit(expCtx))
+                    .collect(Collectors.toList());
+        }
+        Exp index = (Exp) visit(ctx.exp());
+        return new FunCallExp(name, arguments, index);
     }
 }

@@ -44,6 +44,8 @@ public class Main {
             Node ast = astBuilder.visit(tree);
             Interpreter interpreter = new Interpreter();
             try {
+                System.out.println("---in----");
+                System.out.println("---out---");
                 interpreter.execute(ast);
             } catch (Exception e) {
                 System.err.println("Erro de execucao: " + e.getMessage());

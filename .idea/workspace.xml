@@ -5,9 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2f29951c-9b6d-4f15-a82d-43686d363221" name="Changes" comment="v1 fix">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/langcompiler/AstBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/langcompiler/AstBuilder.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/langcompiler/CustomErrorListener.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/langcompiler/CustomErrorListener.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/langcompiler/LangLexer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/langcompiler/LangLexer.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/langcompiler/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/langcompiler/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/langcompiler/interpreter/Interpreter.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/langcompiler/interpreter/Interpreter.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/antlr4/Lang.g4" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/antlr4/Lang.g4" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/langcompiler/AstBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/langcompiler/AstBuilder.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/langcompiler/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/langcompiler/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/langcompiler/interpreter/Interpreter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/langcompiler/interpreter/Interpreter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/langcompiler/src/main/antlr4/LangLexer.interp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/langcompiler/src/main/antlr4/LangLexer.interp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/langcompiler/src/main/antlr4/LangLexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/langcompiler/src/main/antlr4/LangLexer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,7 +91,7 @@
       <option name="presentableId" value="Default" />
       <updated>1751721438779</updated>
       <workItem from="1751721440610" duration="1749000" />
-      <workItem from="1751723198165" duration="7397000" />
+      <workItem from="1751723198165" duration="9022000" />
     </task>
     <task id="LOCAL-00001" summary="v1">
       <option name="closed" value="true" />
