@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2f29951c-9b6d-4f15-a82d-43686d363221" name="Changes" comment="v2.3">
+    <list default="true" id="2f29951c-9b6d-4f15-a82d-43686d363221" name="Changes" comment="v2.4">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/langcompiler/interpreter/Interpreter.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/langcompiler/interpreter/Interpreter.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/langcompiler/interpreter/Interpreter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/langcompiler/interpreter/Interpreter.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,7 +80,7 @@
       <option name="presentableId" value="Default" />
       <updated>1751721438779</updated>
       <workItem from="1751721440610" duration="1749000" />
-      <workItem from="1751723198165" duration="16268000" />
+      <workItem from="1751723198165" duration="17116000" />
     </task>
     <task id="LOCAL-00001" summary="v1">
       <option name="closed" value="true" />
@@ -124,7 +122,15 @@
       <option name="project" value="LOCAL" />
       <updated>1751739349212</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="v2.4">
+      <option name="closed" value="true" />
+      <created>1751741520460</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1751741520460</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -136,7 +142,8 @@
     <MESSAGE value="v2.1" />
     <MESSAGE value="v2.2" />
     <MESSAGE value="v2.3" />
-    <option name="LAST_COMMIT_MESSAGE" value="v2.3" />
+    <MESSAGE value="v2.4" />
+    <option name="LAST_COMMIT_MESSAGE" value="v2.4" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
