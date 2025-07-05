@@ -250,53 +250,17 @@ public interface LangListener extends ParseTreeListener {
 	 */
 	void exitExps(LangParser.ExpsContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ExpLValue}
+	 * Enter a parse tree produced by the {@code ExpEquality}
 	 * labeled alternative in {@link LangParser#exp}.
 	 * @param ctx the parse tree
 	 */
-	void enterExpLValue(LangParser.ExpLValueContext ctx);
+	void enterExpEquality(LangParser.ExpEqualityContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code ExpLValue}
+	 * Exit a parse tree produced by the {@code ExpEquality}
 	 * labeled alternative in {@link LangParser#exp}.
 	 * @param ctx the parse tree
 	 */
-	void exitExpLValue(LangParser.ExpLValueContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code ExpUn}
-	 * labeled alternative in {@link LangParser#exp}.
-	 * @param ctx the parse tree
-	 */
-	void enterExpUn(LangParser.ExpUnContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code ExpUn}
-	 * labeled alternative in {@link LangParser#exp}.
-	 * @param ctx the parse tree
-	 */
-	void exitExpUn(LangParser.ExpUnContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code ExpFunCallReturn}
-	 * labeled alternative in {@link LangParser#exp}.
-	 * @param ctx the parse tree
-	 */
-	void enterExpFunCallReturn(LangParser.ExpFunCallReturnContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code ExpFunCallReturn}
-	 * labeled alternative in {@link LangParser#exp}.
-	 * @param ctx the parse tree
-	 */
-	void exitExpFunCallReturn(LangParser.ExpFunCallReturnContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code ExpLiteral}
-	 * labeled alternative in {@link LangParser#exp}.
-	 * @param ctx the parse tree
-	 */
-	void enterExpLiteral(LangParser.ExpLiteralContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code ExpLiteral}
-	 * labeled alternative in {@link LangParser#exp}.
-	 * @param ctx the parse tree
-	 */
-	void exitExpLiteral(LangParser.ExpLiteralContext ctx);
+	void exitExpEquality(LangParser.ExpEqualityContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ExpOp}
 	 * labeled alternative in {@link LangParser#exp}.
@@ -310,29 +274,185 @@ public interface LangListener extends ParseTreeListener {
 	 */
 	void exitExpOp(LangParser.ExpOpContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ExpParen}
-	 * labeled alternative in {@link LangParser#exp}.
+	 * Enter a parse tree produced by the {@code EqualityExpOp}
+	 * labeled alternative in {@link LangParser#equalityExp}.
 	 * @param ctx the parse tree
 	 */
-	void enterExpParen(LangParser.ExpParenContext ctx);
+	void enterEqualityExpOp(LangParser.EqualityExpOpContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code ExpParen}
-	 * labeled alternative in {@link LangParser#exp}.
+	 * Exit a parse tree produced by the {@code EqualityExpOp}
+	 * labeled alternative in {@link LangParser#equalityExp}.
 	 * @param ctx the parse tree
 	 */
-	void exitExpParen(LangParser.ExpParenContext ctx);
+	void exitEqualityExpOp(LangParser.EqualityExpOpContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ExpNew}
-	 * labeled alternative in {@link LangParser#exp}.
+	 * Enter a parse tree produced by the {@code EqualityExpRelational}
+	 * labeled alternative in {@link LangParser#equalityExp}.
 	 * @param ctx the parse tree
 	 */
-	void enterExpNew(LangParser.ExpNewContext ctx);
+	void enterEqualityExpRelational(LangParser.EqualityExpRelationalContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code ExpNew}
-	 * labeled alternative in {@link LangParser#exp}.
+	 * Exit a parse tree produced by the {@code EqualityExpRelational}
+	 * labeled alternative in {@link LangParser#equalityExp}.
 	 * @param ctx the parse tree
 	 */
-	void exitExpNew(LangParser.ExpNewContext ctx);
+	void exitEqualityExpRelational(LangParser.EqualityExpRelationalContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code RelationalExpOp}
+	 * labeled alternative in {@link LangParser#relationalExp}.
+	 * @param ctx the parse tree
+	 */
+	void enterRelationalExpOp(LangParser.RelationalExpOpContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code RelationalExpOp}
+	 * labeled alternative in {@link LangParser#relationalExp}.
+	 * @param ctx the parse tree
+	 */
+	void exitRelationalExpOp(LangParser.RelationalExpOpContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code RelationalExpAdditive}
+	 * labeled alternative in {@link LangParser#relationalExp}.
+	 * @param ctx the parse tree
+	 */
+	void enterRelationalExpAdditive(LangParser.RelationalExpAdditiveContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code RelationalExpAdditive}
+	 * labeled alternative in {@link LangParser#relationalExp}.
+	 * @param ctx the parse tree
+	 */
+	void exitRelationalExpAdditive(LangParser.RelationalExpAdditiveContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code AdditiveExpMultiplicative}
+	 * labeled alternative in {@link LangParser#additiveExp}.
+	 * @param ctx the parse tree
+	 */
+	void enterAdditiveExpMultiplicative(LangParser.AdditiveExpMultiplicativeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code AdditiveExpMultiplicative}
+	 * labeled alternative in {@link LangParser#additiveExp}.
+	 * @param ctx the parse tree
+	 */
+	void exitAdditiveExpMultiplicative(LangParser.AdditiveExpMultiplicativeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code AdditiveExpOp}
+	 * labeled alternative in {@link LangParser#additiveExp}.
+	 * @param ctx the parse tree
+	 */
+	void enterAdditiveExpOp(LangParser.AdditiveExpOpContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code AdditiveExpOp}
+	 * labeled alternative in {@link LangParser#additiveExp}.
+	 * @param ctx the parse tree
+	 */
+	void exitAdditiveExpOp(LangParser.AdditiveExpOpContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code MultiplicativeExpUnary}
+	 * labeled alternative in {@link LangParser#multiplicativeExp}.
+	 * @param ctx the parse tree
+	 */
+	void enterMultiplicativeExpUnary(LangParser.MultiplicativeExpUnaryContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code MultiplicativeExpUnary}
+	 * labeled alternative in {@link LangParser#multiplicativeExp}.
+	 * @param ctx the parse tree
+	 */
+	void exitMultiplicativeExpUnary(LangParser.MultiplicativeExpUnaryContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code MultiplicativeExpOp}
+	 * labeled alternative in {@link LangParser#multiplicativeExp}.
+	 * @param ctx the parse tree
+	 */
+	void enterMultiplicativeExpOp(LangParser.MultiplicativeExpOpContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code MultiplicativeExpOp}
+	 * labeled alternative in {@link LangParser#multiplicativeExp}.
+	 * @param ctx the parse tree
+	 */
+	void exitMultiplicativeExpOp(LangParser.MultiplicativeExpOpContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code UnaryExpOp}
+	 * labeled alternative in {@link LangParser#unaryExp}.
+	 * @param ctx the parse tree
+	 */
+	void enterUnaryExpOp(LangParser.UnaryExpOpContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code UnaryExpOp}
+	 * labeled alternative in {@link LangParser#unaryExp}.
+	 * @param ctx the parse tree
+	 */
+	void exitUnaryExpOp(LangParser.UnaryExpOpContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code UnaryExpPrimary}
+	 * labeled alternative in {@link LangParser#unaryExp}.
+	 * @param ctx the parse tree
+	 */
+	void enterUnaryExpPrimary(LangParser.UnaryExpPrimaryContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code UnaryExpPrimary}
+	 * labeled alternative in {@link LangParser#unaryExp}.
+	 * @param ctx the parse tree
+	 */
+	void exitUnaryExpPrimary(LangParser.UnaryExpPrimaryContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code PrimaryExpLValue}
+	 * labeled alternative in {@link LangParser#primaryExp}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrimaryExpLValue(LangParser.PrimaryExpLValueContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code PrimaryExpLValue}
+	 * labeled alternative in {@link LangParser#primaryExp}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrimaryExpLValue(LangParser.PrimaryExpLValueContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code PrimaryExpFunCallReturn}
+	 * labeled alternative in {@link LangParser#primaryExp}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrimaryExpFunCallReturn(LangParser.PrimaryExpFunCallReturnContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code PrimaryExpFunCallReturn}
+	 * labeled alternative in {@link LangParser#primaryExp}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrimaryExpFunCallReturn(LangParser.PrimaryExpFunCallReturnContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code PrimaryExpNew}
+	 * labeled alternative in {@link LangParser#primaryExp}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrimaryExpNew(LangParser.PrimaryExpNewContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code PrimaryExpNew}
+	 * labeled alternative in {@link LangParser#primaryExp}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrimaryExpNew(LangParser.PrimaryExpNewContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code PrimaryExpLiteral}
+	 * labeled alternative in {@link LangParser#primaryExp}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrimaryExpLiteral(LangParser.PrimaryExpLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code PrimaryExpLiteral}
+	 * labeled alternative in {@link LangParser#primaryExp}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrimaryExpLiteral(LangParser.PrimaryExpLiteralContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code PrimaryExpParen}
+	 * labeled alternative in {@link LangParser#primaryExp}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrimaryExpParen(LangParser.PrimaryExpParenContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code PrimaryExpParen}
+	 * labeled alternative in {@link LangParser#primaryExp}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrimaryExpParen(LangParser.PrimaryExpParenContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link LangParser#literal}.
 	 * @param ctx the parse tree

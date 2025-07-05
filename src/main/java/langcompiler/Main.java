@@ -21,8 +21,11 @@ public class Main {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         LangParser parser = new LangParser(tokens);
 
+        // Remover listeners padrão e adicionar custom para lexer e parser
+        lexer.removeErrorListeners();
         parser.removeErrorListeners();
         CustomErrorListener errorListener = new CustomErrorListener();
+        lexer.addErrorListener(errorListener);
         parser.addErrorListener(errorListener);
 
         ParseTree tree = parser.prog();

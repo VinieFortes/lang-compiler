@@ -1,0 +1,1036 @@
+Especificação da Linguagem
+Elton Cardoso1 , Leonardo Reis2 , and Rodrigo Ribeiro1
+1
+2
+
+Universidade Federal de Ouro Preto
+Universidade Federal de Juiz de Fora
+
+Neste documento é apresentada a especificação da linguagem de programação que será usada
+na implementação dos trabalhos da disciplina DCC045-Teoria dos Compiladores, denominada
+lang. A linguagem lang tem propósito meramente educacional, contendo construções que se
+assemelham a de várias linguagens conhecidas. No entanto, a linguagem não é um subconjunto
+de nenhuma delas. A descrição da linguagem é dividida entre os diversos aspectos da linguagem,
+a saber, léxico, sintático, sistema de tipos e semântico.
+
+1
+
+Estrutura Sintática
+
+A Gramática 1 apresenta a gramática livre de contexto que descreve a sintaxe da linguagem
+lang usando a notação EBNF. Os meta-símbolos estão entre aspas simples, quando usados como
+tokens. As palavras reservadas estão em negrito e os demais tokens escritos com letras maiúsculas.
+A notação [E] denota que E é opcional, i.e., ou a gramática derivará o conteúdo entre chaves
+ou λ. Por sua vez, a notação {E} representa 0 ou mais ocorrências de E.
+Em linhas gerais, um programa nesta linguagem é constituído por um conjunto de definições
+de tipos de dados e funções. A estrutura sintática da linguagem é dividida em: tipos de dados
+e declarações, funções, comandos e expressões. Cada uma dessas estruturas são detalhadas nas
+subseções subsequentes.
+
+1.1
+
+Tipos de Dados e Declarações
+
+Programas lang podem conter definições de tipos de dados registro, os quais são definidos usando
+a palavra-chave data. Após a palavra-chave data, segue o nome do novo tipo, o qual deve
+começar com uma letra maiúscula, e uma lista de declarações de variáveis delimitadas por chaves.
+Por exemplo, um tipo para representar uma fração pode ser definido como:
+
+1
+
+prog
+def
+data
+decl
+fun
+params
+type
+btype
+block
+cmd
+
+itcond
+exp
+
+op
+lvalue
+exps
+
+→
+→
+→
+|
+→
+→
+→
+→
+→
+→
+→
+|
+|
+|
+→
+→
+|
+|
+|
+→
+→
+→
+
+{def}
+data | fun
+abstract data TYID ‘{’ {decl | fun} ‘}’
+data TYID ‘{’ {decl} ‘}’
+ID ‘::’ type ‘;’
+ID ‘(’ [params] ‘)’ [‘:’ type (‘,’ type)*] cmd
+ID ‘::’ type {‘,’ ID ‘::’ type}
+type ‘[’ ‘]’ | btype
+Int | Char | Bool | Float | TYID
+‘{’ {cmd} ‘}’
+block | if ‘(’ exp ‘)’ cmd | if ‘(’ exp ‘)’ cmd else cmd
+iterate ‘(’ itcond ‘)’ cmd | read lvalue ‘;’ | print exp ‘;’
+return exp {‘,’ exp} ‘;’ | lvalue ‘=’ exp ‘;’
+ID ‘(’ [exps] ‘)’ [‘<’ lvalue {‘,’ lvalue} ‘>’ ] ‘;’
+ID ‘:’ exp | exp
+exp op exp | ‘ !’ exp | ‘-’ exp | lvalue | ‘(’ exp ‘)’
+new type [ ‘[’ exp ‘]’ ]
+ID ‘(’ [exps] ‘)’ ‘[’ exp ‘]’
+true | false | null | INT | FLOAT | CHAR
+‘&&’ | ‘<’ | ‘==’ | ‘ !=’ | ‘+’ | ‘-’ | ‘*’ | ‘/’
+ID | lvalue ‘[’ exp ‘]’ | lvalue ‘.’ ID
+exp {‘,’ exp }
+
+| ‘%’
+
+Gramática 1: Sintaxe da linguagem lang
+data Racional { numerador :: Int ;
+denominador :: Int ;
+3
+}
+1
+2
+
+Esse tipo é denominado Racional e contém dois atributos do tipo inteiro, um nomeado de numerador e o outro de denominador. A sintaxe para especificar os atributos de um tipo registro é a
+mesma usada para declarações de variáveis de funções, i.e., nome do atributo ou variável seguido
+por dois pontos, o tipo do atributo (variável) e finalizado com um ponto e vírgula.
+Um tipo de dados pode ser declarado como abstrato usando a palavra-chave abstract antes de
+data. Um tipo abstrato, além das declarações de variáveis, pode conter uma coleção de definições
+de funções, as quais são as únicas funções que podem manipular diretamente os campos do tipo.
+Funções definidas fora do escopo do tipo abstrato não têm visibilidade da definição interna do
+tipo. O código abaixo define o tipo Racional como abstrato juntamente com a operação de
+adição.
+1
+2
+
+abstract data Racional {
+numerador :: Int ;
+
+2
+
+denominador :: Int ;
+
+3
+4
+
+add ( r1 :: Racional , r2 :: Racional ) : Racional {
+r = new Racional ;
+r.denominador = r1.denominador * r2.denominador ;
+r.numerador =
+r1.numerador * r2.denominador
++ r2.numerador * r1.denominador ;
+return r ;
+}
+
+5
+6
+7
+8
+9
+10
+11
+12
+
+}
+
+Ressalta-se que as funções definidas em um tipo de dados abstratos funciona como funções
+normais, porém essas podem acessar os campos do tipo, como no trecho r1.denominador *
+r2.denominador. Tentativas de acesso ao campo de tipos abstratos por funções definidas externamente são inválidas.
+
+1.2
+
+Funções
+
+A definição de funções e procedimentos é feita dando-se o nome da função (ou procedimento)
+e a sua lista de parâmetros, delimitados por parêntesis. Parâmetros são seguidos por doispontos e os tipos de retorno, em caso de função. Note que uma função pode ter mais de um
+retorno, os quais são separados por vírgula. Para procedimentos, não há informação sobre
+retorno, visto que procedimentos não retornam valores. Por fim, segue o comando da função.
+Um exemplo de programa na linguagem lang é apresentado a seguir, o qual contém a definição
+de um procedimento denominado main e as funções fat e divmod. A função fat recebe um valor
+inteiro como parâmetro e tem como retorno o fatorial desse valor. A função divmod é um exemplo
+de função com mais de um valor de retorno. Essa função recebe dois parâmetros inteiros e retorna
+o quociente e o resto da divisão do primeiro pelo segundo parâmetro.
+main () {
+print fat (10) [0];
+3 }
+1
+2
+
+4
+
+fat ( num :: Int ) : Int {
+if ( num < 1)
+7
+return 1;
+8
+else
+9
+return num * fat ( num-1 ) [0];
+10 }
+5
+6
+
+11
+
+divmod ( num :: Int , div :: Int ) : Int , Int {
+q = num / div ;
+14
+r = num % div ;
+15
+return q , r ;
+12
+13
+
+3
+
+16
+
+1.3
+
+}
+
+Comandos
+
+A linguagem lang apresenta apenas 8 comandos básico, classificados em comandos de atribuição,
+seleção, entrada e saída, retorno, iteração e chamada de funções e procedimentos.
+O comando de atribuição tem a mesma sintaxe das linguagens imperativas C/C++ e Java,
+na qual uma expressão do lado esquerdo especifica o endereço que será armazenado o valor
+resultante da avaliação da expressão do lado direito. A linguagem apresenta dois comados de
+seleção: um if-then e if-then-else. Leitura e escrita da entrada/saída padrão são realizadas usando
+os comandos read e print, respectivamente. O comando read é seguido por um endereço onde
+será armazenado o valor lido da entrada padrão e o comando print é seguido por uma expressão.
+Os valores de retorno de uma função são definidos por meio do comando return, o qual é
+seguido por uma lista de expressões, separadas por vírgula. A linguagem lang apresenta apenas
+um comando de iteração cuja estrutura pode ser:
+1
+
+iterate ( expr ) cmd
+
+ou
+1
+
+iterate ( ID : expr ) cmd
+
+No primeiro caso, o comando iterate especifica um trecho de código que será executado por
+uma quantidade de vezes determinada pela avaliação da expressão delimitada entre parêntesis.
+A expressão é avaliada uma única vez e o laço só será executado se o valor resultante da avaliação
+da expressão for maior que zero. Na segunda forma, o comportamento do iterate dependerá
+do resultado da avaliação da expressão expr: caso seja um valor inteiro, o comportamento é o
+mesmo do outra forma, porém o nome ID é iniciado com o contador da iteração corrente; caso a
+expressão seja um vetor, o iterate executará o comando associado pela quantidade de vezes do
+tamanho do vetor e, a cada iteração, o nome ID é associado com um elemento do vetor.
+Chamadas de funções e procedimentos são comandos. A sintaxe para chamada de procedimento
+é o nome do procedimento seguido por uma lista de expressões separadas por vírgulas. Por
+exemplo, a chamada ao procedimento main seria:
+1
+
+main () ;
+
+A chamada de função é similar, no entanto deve-se especificar uma lista de endereços para
+armazenar os valores de retorno da função, como a seguinte chamada à função divmod:
+1
+
+divmod (5 ,2) <q , r >;
+
+Esse comando define que os valores de retorno da função serão atribuídos as variáveis q e r. Por
+fim, um bloco de comandos é definido delimitando-se uma sequência de zero ou mais comandos
+por chaves.
+4
+
+1.4
+
+Expressões
+
+Expressões são abstrações sobre valores e, em lang, são muito semelhantes às expressões de outras
+linguagens, i.e., possuem os operadores aritméticos usuais (+,-,*,/,%) além de operadores lógicos
+(&&, !), de comparação (<,==,!=) e valores (inteiros, caracteres, booleanos, floats, registros,
+vetores e chamadas de métodos). Adicionalmente, parêntesis podem ser usados para determinar
+a prioridade de uma subexpressão.
+Observe, no entanto, que o conjunto de operadores é reduzido. Por exemplo, operações com
+valores lógicos (tipo booleano) são realizadas com os operadores de conjunção (&&) e negação
+(!). A linguagem não prover operadores para as demais operações lógicas. Como consequência,
+se queremos realizar uma seleção quando o valor de ao menos uma de duas expressões, p e q,
+resulta em verdadeira, escrevemos:
+1
+
+if (!(! p && ! q ) ) { ... }
+
+As chamadas de funções são expressões. Porém, diferentemente das linguagens convencionais,
+usa-se um índice para determinar qual dos valores de retorno da função será usado. Assim, a
+expressão divmod(5, 2)[0] se refere ao primeiro retorno, enquanto a expressão divmod(5, 2)[1] ao
+segundo. Note que a indexação dos retornos da função é feita de maneira análoga ao acesso de
+vetores, no qual o primeiro retorno é indexado por 0, o segundo por 1 e assim sucessivamente.
+A expressão x ∗ x + 1 < f at(2 ∗ x)[0] contém operadores lógicos, aritméticos e chamadas de
+funções. Porém, em qual ordem as operações devem ser realizadas? Se seguirmos a convenção
+adotada pela aritmética, primeiro deve ser resolvidas as operações mais fortes ou de maior
+precedência, i.e. a multiplicação e a divisão, seguida das operações mais fracas ou de menor
+precedência, i.e. a soma e subtração. Assim, certos operadores têm prioridade em relação a
+outros operadores, i.e., devem ser resolvidos antes de outros. Para a expressão x ∗ x + 1 é fácil ver
+que a expressão x ∗ x deve ser resolvida primeiro e em seguida deve-se somar 1 ao resultado. E
+quando há operadores de tipos diferentes, como na expressão x ∗ x + 1 < f at(2 ∗ x)[0]? A situação
+é semelhante, resolve-se o que tem maior precedência, a qual é determinada pela linguagem.
+Nesse exemplo, a última operação a ser realizada é a operação de comparação, cuja precedência
+é a menor dentre todos os operadores da expressão. A Tabela 1 apresenta a precedência dos
+operadores da linguagem lang. O operador que tiver o maior valor da coluna nível tem maior
+precedência.
+Sabendo a precedência dos operadores podemos determinar em qual ordem as operações devem
+ser executadas quando há operadores com diferentes níveis de precedência. Entretanto, como
+determinar a ordem das operações se uma determinada expressão contém diferentes operadores
+com a mesma precedência, como nas expressões v[3].y[0] e x/3 ∗ y?
+Em situações como essas, determinamos a ordem de avaliação das operações a partir da associatividade dos operadores, que pode ser à esquerda ou à direita. Quando os operadores são
+5
+
+Nível
+7
+6
+5
+4
+3
+2
+1
+
+Operador
+[]
+.
+()
+
+Descrição
+acesso a vetores
+acesso aos registros
+parêntesis
+
+Associatividade
+
+!
+*
+/
+%
+
+negação lógica
+menos unário
+multiplicação
+divisão
+resto
+
+direita
+
++
+<
+
+adição
+subtração
+relacional
+
+==
+!=
+&&
+
+igualdade
+diferença
+conjunção
+
+esquerda
+
+esquerda
+
+não é associativo
+esquerda
+esquerda
+
+Tabela 1: Tabela de associatividade e precedência dos operadores. Tem a maior precedência o
+operador de maior nível.
+
+6
+
+associativos à esquerda, resolvemos a ordem das operações da esquerda para a direita. Caso os
+operadores sejam associativos à direita, fazemos o inverso. Em ambas as expressões v[3].y[0] e
+x/3 ∗ y, os operadores são associativos à esquerda. Portanto, na primeira expressão, primeiro é
+realizado o acesso ao vetor v, depois acesso ao membro y e, por fim, acesso ao vetor de y. Na
+segunda expressão, realiza-se primeiro a divisão de x por 3 e, em seguida, a multiplicação do
+resultado por y.
+
+1.5
+
+Escopo
+
+Um nome é visível desde o local de sua definição até o fim do bloco que o definiu, sendo visível,
+inclusive, nos blocos mais internos. Uma vez definido, um novo nome não pode ser redefinido
+em blocos mais internos, sendo assim, o seguinte trecho de código que contém uma redefinição
+do nome x no iterate é inválido:
+read num ;
+x = false ;
+3 if ( num % 2 == 0) {
+4
+x = true ;
+5 }
+1
+2
+
+6
+
+iterate ( x : 10) {
+print x ;
+9 }
+7
+8
+
+Nomes definidos em blocos internos não são visíveis nos blocos mais externos.
+
+2
+
+Estrutura Léxica
+
+A linguagem usa o conjunto de caracteres da tabela ASCII1 . Cada uma das possíveis categorias
+léxicas da linguagem são descritas a seguir:
+• Um identificador (ID) é uma sequência de letras, dígitos e sobrescritos (underscore) que,
+obrigatoriamente, começa com uma letra minúscula. Exemplos de identificadores: var,
+var_1 e fun10;
+• Um nome de tipo (TYID) é semelhante a regra de identificadores, porém a primeira
+letra é maiúscula; Exemplos de nomes de tipos: Racional e Point;
+• Um literal inteiro (INT) é uma sequência de um ou mais dígitos;
+1
+
+http://www.asciitable.com
+
+7
+
+• Um literal ponto flutuante (FLOAT) é uma sequência de zero ou mais digitos, seguido
+por um ponto e uma sequência de um ou mais digitos. Exemplos de literais ponto flutuante:
+3.141526535, 1.0 e .12345;
+• Um literal caractere (CHAR) é um único caractere delimitado por aspas simples. Os
+caracteres especiais quebra-de-linha, tabulação, backspace e carriage return são definidos
+usando os caracteres de escape \n, \t, \b e \r, respectivamente. Para especificar um
+caractere \, é usado \\e para a aspas simples o \’. Também é permitido especificar uma
+caráctere por meio de seu código ASCII, usado \ seguido por exatamente três dígitos.
+Exemplos de literais caractere: ’a’, ’\n’, ’\t’, ’\\’ e ’\065’;
+• Um literal lógico é um dos valores true que denota o valor booleano verdadeiro ou false
+que denota o valor booleano falso;
+• O literal nulo é null;
+• Os símbolos usados para operadores e separadores são (, ), [, ], {, }, >, ;, :, ::, ., ,, =,
+<, ==, !=, +, -, *, /, %, && e !.
+Todos os nomes de tipos, comandos e literais são palavras reservadas pela linguagem. Há dois
+tipos de comentários: comentário de uma linha e de múltiplas linhas. O comentário de uma linha
+começa com -- e se estende até a quebra de linha. O comentário de múltiplas linhas começa
+com {- e se estende até os caracteres de fechamento do comentário, -}. A linguagem não suporta
+comentários aninhados.
+
+3
+
+Estrutura Semântica
+
+Nesta seção descreveremos a estrutura semântica de lang. Primeiramente, descreveremos a
+semântica estática da linguagem e em seguida sua semântica operacional.
+
+3.1
+
+Semântica Estática de Lang
+
+A semântica estática de lang é descrita como um conjunto de julgamentos que determinam se
+um certo programa lang é considerado válido ou não. Para isso, descreveremos a estrutura da
+semântica estática de acordo com os níveis de sintaxe de lang. A seção 3.1.1 descreve a sintaxe
+abstrata e os contextos utilizados para definir todas as regras semânticas. A seções 3.1.2, 3.1.3
+e 3.1.4 descrevem regras para expressões, comandos e declarações, respectivamente. A Seção 3.1.5
+descreve as regras da semântica estático de um programa completo em lang.
+
+8
+
+3.1.1
+
+Sintaxe Abstrata e Contextos
+
+A sintaxe abstrata de expressões é definida pela seguinte gramática, em que • denota uma lista
+vazia, n denota constantes inteiras, c constantes de caracteres, f constantes de ponto flutuante,
+√
+◦ denota operadores binários, denota operadores unários e v denota um identificador.
+→
+→
+→
+→
+es →
+
+e
+lv
+◦
+√
+
+√
+n | f | c | true | false | null | e ◦ e | e | e[e] | v(es)[e] | new τ e | lv
+v | lv . v | lv[e]
++ | − | ∗ | / | % | && | == | ! = | <
+!|−
+e es | •
+
+Expressões são formadas por literais, constantes booleanas, o valor null, operadores binários,
+unários, acesso a arranjos, chamadas de funções, alocação de memória, variáveis e acesso a
+campos de registros.
+A seguir, apresentamos a sintaxe abstrata de comandos.
+→
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+cs →
+lvs →
+
+c
+
+lv = e
+τ v=e
+if e then c else c
+if e then c
+iterate e c
+iterate id e c
+read lv
+print e
+return es
+v(es) lvs
+cs
+c cs | •
+lv lvs | •
+
+Comandos podem ser atribuições, declaração de variáveis, condicionais, repetição, leitura de valores, impressão no console, retorno de função, chamada de função ou uma sequência de comandos.
+Tipos podem ser tipos básicos, tipos definidos pelo usuário ou arranjos.
+τ → ρ | τ []
+ρ → Int | Float | Char | Bool | Void | v
+Programas lang são formados por declarações de tipos ou de funções, cuja sintaxe abstrata é
+apresentada a seguir.
+9
+
+prog
+def
+nd
+f un
+f uns
+fd
+f ds
+ts
+
+→
+→
+→
+→
+→
+→
+→
+→
+
+def prog | •
+nd | f un
+v f ds | v f ds f uns
+v (f ds) ts c
+f un f uns | •
+v::τ
+f d f ds | •
+τ ts | •
+
+Para verificação da semântica estática de programas lang utilizaremos três contextos:
+• Θ: contexto contendo os tipos de funções definidas pelo usuário. Esse contexto é um
+′ ]), em que f é o nome da função e
+conjunto de pares (f, [v1 : τ1 , ..., vn : τn ] → [τ1′ , ..., τm
+′ ] o seu tipo. Note que o tipo dos argumentos é representado
+[v1 : τ1 , ..., vn : τn ] → [τ1′ , ..., τm
+por uma sequência de pares de identificadores e seus tipos e o tipo de retorno como uma
+lista de tipos.
+• ∆: contexto contendo informações sobre os tipos definidos pelo usuário. O contexto ∆
+é um conjunto de pares da forma (x, S) em que x é o nome do tipo e S é um conjunto
+formado por pares (v, τ ) em que v :: τ é um campo do tipo x.
+• Γ: contexto contendo definições de variáveis e operadores de lang. Esse contexto é formado
+por pares (x, τ ) em que x é um identificador e τ o seu respectivo tipo. Nesse contexto
+armazemos os tipos de todos os operadores binários e unários de lang.
+A notação Γ(x) = τ denota que (x, τ ) ∈ Γ e Γ, x : τ denota Γ ∪ {(x, τ )}. Essas operações
+aplicam-se também aos contextos ∆ e Θ. Finalmente, representamos um contexto vazio por •.
+3.1.2
+
+Semântica Estática de Expressões
+
+A semântica estática de expressões lang são definidas como um julgamento de forma Θ; ∆; Γ ⊢e
+e : τ que representa que a expressão e possui o tipo τ sobre os contextos Θ, ∆ e Γ.
+Iniciaremos a descrição com regras para constantes, que possuem regras de tipos imediatas: por
+exemplo, a primeira regra mostra que constantes inteiras (n) possuem o tipo Int. A única
+pecurialidade é que a constante null pode possuir qualquer tipo de arranjo ou de registro, mas
+não tipos primitivos da linguagem.
+Θ; ∆; Γ ⊢e n : Int
+
+Θ; ∆; Γ ⊢e f : Float
+
+Θ; ∆; Γ ⊢e true : Bool Θ; ∆; Γ ⊢e false : Bool
+10
+
+Θ; ∆; Γ ⊢e c : Char
+τ ̸∈ {Int, Char, Float, Bool}
+Θ; ∆; Γ ⊢e null : τ
+
+Variáveis possuem o tipo que é atribuído a elas pelo contexto de tipos Γ.
+Γ(x) = τ
+Θ; ∆; Γ ⊢e x : τ
+A verificação de acesso a campos em valores de registros é verificada da seguinte forma:
+1. Primeiro, obtemos o tipo da variável x1 , Θ; ∆; Γ ⊢e x1 : τ1 ;
+2. Em seguida, obtemos o conjunto de campos de τ1 , ∆(τ1 ) = S1 ;
+3. Finalmente, obtemos o tipo de x2 no conjunto de campos de τ1 , S1 .
+
+Θ; ∆; Γ ⊢e x1 : τ1 ∆(τ1 ) = S1 (x2 , τ ) ∈ S1
+Θ; ∆; Γ ⊢e x1 .x2 : τ
+A verificação de operadores binários e unários são como se segue:
+Θ; ∆; Γ ⊢e e1 : τ1
+
+Θ; ∆; Γ ⊢e e2 : τ2 Θ; ∆; Γ(◦) = [τ1 , τ2 ] → τ
+Θ; ∆; Γ ⊢e e1 ◦ e2 : τ
+
+√
+Θ; ∆; Γ ⊢e e1 : τ1 Θ; ∆; Γ( ) = τ1 → τ
+√
+Θ; ∆; Γ ⊢e e1 : τ
+Uma expressão e1 ◦ e2 possui o tipo τ se:
+1. O operador ◦ possui o tipo [τ1 , τ2 ] → τ ;
+2. a expressão e1 possui tipo τ1 , isto é, Θ; ∆; Γ ⊢e e1 : τ1 ;
+3. a expressão e2 possui o tipo τ2 , isto é, Θ; ∆; Γ ⊢e e2 : τ2 .
+A verificação dos operadores unários é similar.
+Evidentemente, o tipo dos operadores deve estar presente no contexto Γ. A tabela a seguir,
+descreve o tipo de cada um dos operadores disponível em lang. O contexto inicial formado pelas
+definições dessa tabela será chamado de Θ0 .
+Além de tipos básicos, lang permite a definição de arranjos. A verificação de accesso a arranjos
+é feita conforme a seguinte regra:
+
+11
+
+Operador
++, −, ∗, /,
+%
+==, ! =, <
+&&
+!
+print
+
+Tipo
+[a, a] → a, em que a ∈ {Int, Float}
+[Int,Int] → Int
+[a, a] → Bool, em que a ∈ {Int, Float, Char}
+[Bool,Bool] → Bool
+Bool → Bool
+a → a, em que a ∈ {Int, Float}
+a → Void, em que a ∈ {Int, Char, Bool, Float}
+
+Θ; ∆; Γ ⊢e e1 : τ [ ] Θ; ∆; Γ ⊢e e2 : Int
+Θ; ∆; Γ ⊢e e1 [e2 ] : τ
+A regra de verificação de chamadas de funções é feita da seguinte forma:
+1. Primeiro obtemos o tipo da função utilizando o contexto Θ e seu identificador: Θ(v) =
+[x1 : τ1 , ..., xm : τm ] → τ ;
+2. Na sequência verificamos os tipos de cada argumento da chamada de função com o seu
+respectivo tipo: Θ; ∆; Γ ⊢e ei : τi , em que m é o número de argumentos da função,
+1 ≤ i ≤ m.
+3. Verificar que os indicadores de acesso a valores de retorno estão dentro do limite do número
+de valores de retorno, p.
+
+Θ(v) = [x1 : τ1 , ..., xm : τm ] → [τ0 , ..., τp ] Θ; ∆; Γ ⊢e ei : τi
+Θ; ∆; Γ ⊢e v(e1 , ..., em )[n] : τn
+
+0≤n≤p 1≤i≤m
+
+A expressão para alocação dinâmica pode ser utilizada sobre tipos de arranjos ou tipos de registros. A regra seguinte mostra como verificar a alocação de arranjos, em que dom(∆) representa
+o domínio do contexto ∆, isto é dom(∆) = {x | ∃S.∆(x) = S}.
+Θ; ∆; Γ ⊢e e : Int τ ̸∈ {Int, Float, Char, Bool} ∪ dom(∆)
+Θ; ∆; Γ ⊢e new τ e : τ
+A regra funciona da seguinte forma:
+1. A expressão e deve ter tipo Int, para definição de limites de arranjos.
+2. O tipo τ deve ser um tipo de arranjo, isto é, não deve ser um tipo primitivo nem um tipo
+definido pelo usuário.
+12
+
+A próxima regra mostra como verificar a alocação de tipos definidos pelo usuário.
+τ ∈ dom(∆)
+Θ; ∆; Γ ⊢e new τ : τ
+Note que a única restrição é que o tipo a ser alocado faz parte do domínio do ambiente ∆.
+
+3.1.3
+
+Semântica Estática de Comandos
+
+A semântica estática de comandos é dada por um julgamento Θ; ∆; Γ; V ⊢c c ; V ′ ; Γ′ que
+denota que o comando c é bem formado nos contextos Θ, ∆ e Γ. Note que o comando c
+pode modificar o contexto Γ por incluir uma nova variável. Por isso, este julgamento produz,
+como resultado, um novo contexto Γ′ e conjuntos de variáveis incluídas V e V ′ . Usaremos este
+conjunto para controlar o escopo de visibilidade de identificadores. Adicionalmente, o julgamento
+Θ; ∆; Γ; V ⊢cs c ; V ′ × Γ′ lida com a verificação de blocos.
+A primeira regra para blocos lida com a marcação de final de um bloco, •. Esta regra simplesmente remove do contexto de tipos de resultado, Γ′ , todos os identificadores que foram
+introduzidos no bloco atual e que estão armazenados no conjunto de variáveis V .
+Γ′ = {(x, τ ) | x ̸∈ V ∧ Γ(x) = τ }
+Θ; ∆; Γ; V ⊢cs • ; ∅; Γ′
+A próxima regra lida com blocos não vazios e basicamente é responsável por processar o primeiro
+comando do bloco e repassar os resultados deste processamento para o restante dos comandos
+deste bloco.
+Θ; ∆; Γ; V ⊢c c ; V1 ; Γ1 Θ; ∆; Γ1 ; V1 ⊢cs cs ; V ′ ; Γ′
+Θ; ∆; Γ; V ⊢cs c cs ; V ′ ; Γ′
+A primeira regra para comandos lida com a atribuição. Essa regra é formada pelos seguintes
+passos:
+1. Verificamos o tipo do lado esquerdo da atribuição;
+2. Verificamos o tipo do lado direito da atribuição;
+
+Θ; ∆; Γ ⊢e lv : τ Θ; ∆; Γ ⊢e e : τ
+Θ; ∆; Γ; V ⊢c lv = e : V ; Γ
+13
+
+É importante notar que esta regra não modifica o conjunto de variáveis introduzidas e nem o
+contexto de tipos, pois não há inclusão de novas variáveis no contexto.
+A verificação de declaração de variáveis locais é feita de acordo com os seguintes passos:
+1. Iniciamos verificando que a expressão de inicialização da variável v possui o mesmo tipo τ
+de sua declaração.
+2. A regra retorna o contexto modificado contendo o tipo da nova variável e a inclui no
+conjunto de variáveis definidas no bloco atual.
+
+Θ; ∆; Γ ⊢e e : τ V ′ = {v} ∪ V Γ′ = Γ, v : τ
+Θ; ∆; Γ; V ⊢c τ v = e ; V ′ ; Γ′
+
+Na sequência, apresentamos a regra para validação de comandos condicionais. Primeiro, verificamos que o tipo da expressão e deve ser Bool e, na sequência, validamos os blocos de comandos
+cs1 e cs2 (caso exista) ignorando as eventuais declarações introduzidas nesses blocos.
+Θ; ∆; Γ ⊢e e : Bool Θ; ∆; Γ; V ⊢c c1 ; V1 ; Γ1 Θ; ∆; Γ; V ⊢c c2 ; V2 ; Γ2
+Θ; ∆; Γ; V ⊢c if e then c1 else c2 ; V ; Γ
+Θ; ∆; Γ ⊢e e : Bool Θ; ∆; Γ; V ⊢c c1 ; V1 ; Γ1
+Θ; ∆; Γ; V ⊢c if e then c1 ; V ; Γ
+
+A seguir, apresentamos as regras para verificar comandos de repetição. Na primeira forma,
+iniciamos a verificação por demandar que a expressão e possua tipo Int ou arranjo e, na sequência,
+verificamos o bloco de comandos do comando iterate, descartando modificações no contexto de
+tipos. Na segunda forma, quando e tem tipo Int, verificamos que v não está no contexto ou
+está com tipo Int. Caso e seja um vetor, a regra é similar, porém v deve ter o mesmo tipo dos
+elementos do vetor.
+
+Θ; ∆; Γ ⊢e e : Int Θ; ∆; Γ; V ⊢c c ; V ′ ; Γ′ Θ; ∆; Γ ⊢e e : τ [ ] Θ; ∆; Γ; V ⊢c c ; V ′ ; Γ′
+Θ; ∆; Γ; V ⊢c iterate e c ; V ; Γ
+Θ; ∆; Γ; V ⊢c iterate e c ; V ; Γ
+Θ; ∆; Γ ⊢e e : Int Γ(v) = Int ∨ ̸ ∃τ.(v, τ ) ∈ Γ Θ; ∆; Γ, v : Int; V ⊢c c ; V ′ ; Γ′
+Θ; ∆; Γ; V ⊢c iterate v e c ; V ; Γ
+Θ; ∆; Γ ⊢e e : τ [ ] Γ(v) = τ ∨ ̸ ∃τ1 .(v, τ1 ) ∈ Γ Θ; ∆; Γ, v : τ ; V ⊢c c ; V ′ ; Γ′
+Θ; ∆; Γ; V ⊢c iterate v e c ; V ; Γ
+14
+
+A verificação de comandos read e print é bastante direta e realizada pelas regras a seguir.
+Θ; ∆; Γ ⊢e lv : τ
+τ ∈ {Int, Float, Char, Float}
+Θ; ∆; Γ; V ⊢c read lv ; V ; Γ
+
+Θ; ∆; Γ ⊢e e : τ
+τ ∈ {Int, Float, Char, Float}
+Θ; ∆; Γ; V ⊢c print e ; V ; Γ
+
+Para verificarmos o comando return, precisamos determinar se a lista de valores retornados
+possui o mesmo tipo que o retorno anotado no cabeçalho da função. Denotamos por Θτ =
+[τ1 , ..., τm ] a tupla de tipos do retorno da função. A regra seguinte mostra como validar o
+comando return.
+Θτ = [τ1 , ..., τm ] Θ; ∆; Γ ⊢e ei : τi 1 ≤ i ≤ m
+Θ; ∆; Γ; V ⊢c return e1 ...em ; V ; Γ
+Chamadas de funções podem ser feitas a nível de comandos. A verificação de chamadas de função
+se dá pelos seguintes passos:
+1. Primeiro obtemos o tipo da função v, Θ(v) = [x1 : τ1 , ..., xm : τm ] → [τ1 , ..., τp ].
+2. Na sequência, verificamos que os argumentos possuem o tipo exigido pela definição de
+função, Θ; ∆; Γ ⊢e ei : τi
+3. Finalmente, verificamos que as expressões passadas para os componentes da tupla de retorno devem possui o mesmo tipo dos retornos da função.
+
+Θ(v) = [x1 : τ1 , ..., xm : τm ] → [τ1 , ..., τp ] Θ; ∆; Γ ⊢e ei : τi Θ; ∆; Γ ⊢e lvj : τj
+Θ; ∆; Γ; V ⊢c v(e1 , ..., em ) lv1 ...lvp ; V ; Γ
+3.1.4
+
+1≤j≤p 1≤i≤m
+
+Semântica de Declarações
+
+A semântica estática de declarações é dada por um julgamento Θ; ∆ ⊢d prog ; Θ′ ; ∆′ que
+denota que a sequência de declarações prog produz os contextos Θ′ , ∆′ a partir de contextos Θ
+e ∆.
+A primeira regra, mostra que um conjunto vazio de declarações não modifica os contextos.
+Θ; ∆ ⊢d • ; Θ; ∆
+15
+
+A próxima regra mostra como verificar conjuntos de declarações. A cada passo, verificamos cada
+uma das declarações produzindo novos contextos.
+Θ; ∆ ⊢d def ; Θ1 ; ∆1 Θ1 ; ∆1 ⊢d prog ; Θ′ ; ∆′
+Θ; ∆ ⊢d def prog ; Θ′ ; ∆′
+
+A validação de definição de novos tipos de dados se dá pelos seguintes passos:
+1. Verificar que não há nomes de campos repetidos no tipo de dados definido;
+2. Verificar que não há tipo com o mesmo nome definido previamente;
+3. Verificar as funções dos tipos abstratos;
+
+v ̸∈ dom(∆) ∃!x.∃τ.x :: τ ∈ f ds
+Θ; ∆ ⊢d v f ds ; Θ; {(v, f ds)} ∪ ∆
+v ̸∈ dom(∆) ∃!x.∃τ.x :: τ ∈ f ds Θ; {(v, f ds)} ∪ ∆ ⊢d f uns ; Θ′ ; ∆′
+Θ; ∆ ⊢d v f ds f uns ; Θ′ ; {(v, •)} ∪ ∆
+
+Observe que para tipos abstratos, o contexto resultante contém o nome do tipo sem as informações dos campos. Apenas as funções internas são tipas num contexto incluindo informações do
+campos do tipo abstrato.
+A próxima regra mostra como verificar conjuntos de funções. A cada passo, verificamos cada
+uma das funções, produzindo novos contextos.
+Θ; ∆ ⊢d f un ; Θ1 ; ∆1 Θ1 ; ∆1 ⊢d f uns ; Θ′ ; ∆′
+Θ; ∆ ⊢d f un f uns ; Θ′ ; ∆′
+
+A última regra da semântica mostra como uma função é verificada em um programa. A validação
+de uma declaração de função segue os seguintes passos:
+1. Verifica-se se não há declaração de outra função de mesmo nome;
+2. Inicializamos o contexto Γ com os parâmetros formais da função definida, junto com o tipo
+desta função, para permitir chamadas recursivas.
+3. Inicializamos Θτ com o tipo de retorno desta função.
+4. Verificamos o corpo da função e validamos se todos os caminhos de execução terminam
+com um comando return com o tipo apropriado.
+16
+
+v ̸∈ dom(Θ)
+Seja Θτ = (τ1 , ..., τn )
+
+Γ = {(xi , τi ) | 1 ≤ i ≤ m}
+′
+Θ = Θ, v : (τ1 , ...τm ) → (τ1 , ..., τn )
+
+Θ′ ; ∆; Γ ⊢cs cs ; Γ′ ; V ′
+(τ1 , ..., τn ) ⊢ret cs
+
+Θ; ∆ ⊢d v (x1 τ1 , ..., xm τm ) (τ1 , ..., τn ) cs ; Θ′ ; ∆
+As regras (τ1 , ..., τn ) ⊢ret cs validam que todos os caminhos do bloco cs terminam com um
+return apropriado. A primeira regra verifica que em um bloco contendo apenas um comando,
+esse deve ser um return.
+Θ; ∆; Γ ⊢e ei : τi 1 ≤ i ≤ n
+(τ1 , ..., τn ) ⊢ret return e1 , ..., en •
+Em seguida, caso o último comando de um bloco seja um if, devemos garantir que ambos os
+blocos do if devem possuir um return.
+(τ1 , ..., τn ) ⊢ret cs1 (τ1 , ..., τn ) ⊢ret cs2
+(τ1 , ..., τn ) ⊢ret cs if e then cs1 then cs2
+Na situação do último comando de um bloco ser um iterate, devemos garantir que o último
+comando de seu bloco seja um return.
+(τ1 , ..., τn ) ⊢ret cs
+(τ1 , ..., τn ) ⊢ret cs iterate e cs
+Caso o bloco seja formado por uma sequência de dois ou mais comandos, devemos ignorar o
+primeiro comando e verificar a cauda do bloco.
+(τ1 , ..., τn ) ⊢ret cs
+(τ1 , ..., τn ) ⊢ret c cs
+3.1.5
+
+Semântica de Programas Completos
+
+Programas lang são formados por uma ou mais declarações. Dizemos que um programa Lang
+é bem formado se esse possui pelo menos um procedimento de nome main sem argumento. A
+regra a seguir faz essa validação, inicializando o contexto Θ com as definições iniciais presentes
+em Θ0 :
+Θ0 ; • ⊢d prog ; Θ; ∆ Θ(main) = [] → []
+⊢wf prog
+17
+
+Com isso, finalizamos a especificação da semântica estática de lang. Na próxima seção apresentaremos a sua semântica dinâmica.
+
+3.2
+
+Semântica dinâmica
+
+Assim como na semântica estática, a semântica dinâmica de lang também será dividida em
+diferentes níveis: expressões, comandos e funções.
+
+3.2.1
+
+Semântica de Expressões
+
+Antes de apresentarmos a semântica de expressões, devemos introduzir o conceito de valor. De
+maneira simples, um valor representa o resultado final da computação de uma expressão. Valores
+são definidos pela seguinte gramática livre de contexto:
+val → n | c | f | true | false | null | A | D
+Os não terminais A e D representam valores de arranjos e tipos de dados definidos pelo usuário
+(registros). Usando o conceito de valor, especificaremos a semântica de expressões como um
+conjunto de regras da forma:
+∆; θ; σ; e ⇒e val
+em que θ é o ambiente de funções, que consiste de uma associação entre nomes de funções
+e sua respectiva definição. Por sua vez, σ é o ambiente de execução, que consiste de uma
+associação entre nomes de variáveis e seu respectivo valor, e é a expressão a ser executada e val
+o valor retornado. Observe que a semântica utiliza o ambiente ∆ para permitir a correta criação
+de valores de registros. De maneira simples, o ambiente σ consiste de uma abstração da memória
+utilizada por um programa. A notação σ(x) = val denota que o valor val está associado ao nome
+x em σ. Por sua vez, representamos por σ[x 7→ val] o ambiente σ ′ tal que σ ′ (i) = σ(i), para todo
+i ̸= x e σ ′ (x) = val.
+As primeiras regras lidam com a avaliação de valores e de variáveis.
+∆; θ; σ; val ⇒e val ∆; θ; σ; x ⇒e σ(x)
+A execução de valores é imediata e a de variáveis apenas obtém o valor associado a ela no
+ambiente σ. A execução de acesso a elementos de arranjos e a campos de registros são definidas
+pelas regras a seguir.
+18
+
+∆; θ; σ; e1 ⇒e A1 ∆; θ; σ; e2 ⇒e n1
+∆; θ; σ; e1 [e2 ] ⇒e val
+
+A1 [n] = val ∆; θ; σ; e1 ⇒e D1 D1 (v) = val
+∆; θ; σ; e1 .v ⇒e val
+
+Para o acesso a arranjos, primeiro avaliamos a expressão e1 que retorna um valor de arranjo, A1 .
+Em seguida, avaliamos a expressão do índice da posição acessada, e2 , resultando uma constante
+n1 . Finalmente, o valor val é obtido pelo valor presente na posição n1 do arranjo A1 . A avaliação
+do acesso a campo de registros é similar. Primeiro, executamos a expressão e1 e obtemos um valor
+D1 de registro. Em seguida, obtemos o valor val usando como chave o nome do campo acessado,
+v. Observe que registros são representados como tabelas formadas por pares chave/valor.
+Em seguida, temos as regras para execução de expressões com operadores binários.
+∆; θ; σ; e1 ⇒e val1 ∆; θ; σ; e2 ⇒e val2
+∆; θ; σ; e1 ◦ e2 ⇒e val1 ⊕ val2
+O operador ⊕ denota uma função correspondente a ◦ sobre valores. A execução de operadores
+√
+unários é similar, em que ∠ é o operador equivalante a que opera sobre valores.
+∆; θ; σ; e1 ⇒e val1
+√
+∆; θ; σ; e1 ⇒e ∠val1
+Para realizarmos a execução de funções, devemos definir como realizar a execução de sua lista
+de argumentos. Faremos isso definindo regras para avaliar sequências de expressões.
+
+∆; θ; σ; • ⇒es •
+
+∆; θ; σ; e ⇒e val ∆; θ; σ; es ⇒es vals
+∆; θ; σ; e es ⇒es val vals
+
+A primeira das regras anteriores mostra que uma sequência vazia de expressões reduz para uma
+sequência vazia de valores. A segunda regra mostra que sequências não vazias de expressões são
+reduzidas executando-se o primeiro elemento da lista e, em seguida, executamos a lista contendo
+o restante das expressões da lista original.
+Utilizando as regras para avaliação de listas de expressões, podemos definir a execução de funções
+como a seguir:
+1. Primeiro, executamos os argumentos es da chamada retornando os valores vals1 .
+2. Na sequência, executamos o argumento da posição de retorno, e, resultando no valor val2 .
+3. Obtemos a definição da função v no ambiente θ.
+4. Em seguida, criamos o ambiente σ ′ que estende σ com os valores obtidos pela avaliação
+dos argumentos.
+19
+
+5. O próximo passo envolve executar o corpo da função v, cs, usando o ambiente σ ′ retornando
+os valores como um arranjo A.
+6. Finalmente, o valor é obtido a partir da posição val2 no arranjo de valores de retorno, A.
+
+∆; θ; σ; es1 ⇒es vals1
+∆; θ; σ; e ⇒e val2
+θ(v) = v(x :: τ ) ts cs σ ′ = σ ∪ {(xi , vals1i ) | 1 ≤ i ≤ |vals1 |}
+∆; θ; σ ′ ; cs ⇒cs σ ′′ ; A
+A[val2 ] = val
+Θ; θ; σ; v(es) [e] ⇒e val
+A próxima regra mostra como avaliar a alocação de arranjos. Primeiro, avaliamos a expressão
+que forma as dimensão do arranjo e a utilizamos para inicializar o valor de um arranjo usando
+um conjunto de regras auxiliares.
+∆; θ; σ; e ⇒e val τ ; val ;A A
+∆; θ; σ; new τ [] e ⇒e A
+Todos os arranjos em lang são unidimensionais. Para criar arranjos multidimensionais, deve-se
+arranjos cujos elementos são arranjos. Utilizando este fato, as regras paraa regra para criação
+de arranjos é apresentada a seguir.
+τ ; val ;A {φ(τ )1 , ..., φ(τ )val }
+A notação φ(τ ) denota o valor padrão para o tipo τ .
+Alocação de registros é feita pela regra a seguir que inicializa cada um dos seus campos com o
+valor padrão para o tipo do campo.
+∆(ρ) = {v1 : τ1 , ..., vn : τn } D = [v1 : φ(τ1 ), ..., vn : φ(τn )]
+∆; θ; σ; new ρ ⇒e D
+Com isso terminamos a semântica dinâmica de expressões para lang.
+
+3.2.2
+
+Semântica de Comandos
+
+Ao contrário da semântica de expressões que produz um valor como resultado, a execução de
+comandos apenas modifica o ambiente de execução σ. O comando return pode retornar um
+arranjo de resultados. Para evitar poluir a notação, vamos utilizar o arranjo de resultados
+apenas para o comando return.
+20
+
+Primeiro mostraremos as regras que lidam com a execução de sequências de comandos. A execução de uma sequência não vazia de comandos se dá pela execução do primeiro comando, c, que
+produz um novo ambiente σ1 que é utilizado como entrada para a execução do restante do bloco
+de comandos que produz o ambiente final, σ ′ . Finalmente, observe que um bloco vazio produz
+como resultado um ambiente não modificado.
+∆; θ; σ; c ⇒c σ1 ∆; θ; σ1 ; cs ⇒c σ ′
+∆; θ; σ; c cs ⇒c σ ′
+∆; θ; σ; • ⇒c σ
+A semântica de atribuições v = e se dá pela avaliação da expressão e e a respectiva atualização do
+valor de v no ambiente σ. Para declarações de variáveis e sua respectiva inicialização, o processo
+é similar e também apresentado a seguir.
+∆; θ; σ; e ⇒e val
+∆; θ; σ; e ⇒e val
+∆; θ; σ; v = e ⇒c σ[v 7→ val] ∆; θ; σ; τ v = e ⇒c σ[v 7→ val]
+A avaliação de comandos condicionais se dá por executar a expressão e e, em seguida, executa-se
+o bloco correspondente ao then ou else (caso exista), dependendo do resultado da avaliação.
+∆; θ; σ; e ⇒e true ∆; θ; σ; c1 ⇒c σ ′ ∆; θ; σ; e ⇒e false ∆; θ; σ; c2 ⇒c σ ′
+∆; θ; σ; if e then c1 else c2 ⇒c σ ′
+∆; θ; σ; if e then c1 else c2 ⇒c σ ′
+∆; θ; σ; e ⇒e true ∆; θ; σ; c1 ⇒c σ ′
+∆; θ; σ; e ⇒e false
+∆; θ; σ; if e then c1 ⇒c σ ′
+∆; θ; σ; if e then c1 ⇒c σ
+Comandos iterate são executados da seguinte forma:
+1. Primeiro executamos a expressão e de forma a obter um valor inteiro n ou um arranjo de
+tamanho n.
+2. Em seguida, realizamos n iterações do comando c.
+
+∆; θ; σ; e ⇒e n ∆; θ; σ; c ⇒n σ ′ ∆; θ; σ; e ⇒e A |A| = n ∆; θ; σ; c ⇒n σ ′
+∆; θ; σ; iterate e c ⇒c σ ′
+∆; θ; σ; iterate e c ⇒c σ ′
+A iteração do comando é realizada pelas seguintes regras, cujo significado é imediato.
+∆; θ; σ; c ⇒c σ1 ∆; θ; σ1 ; c ⇒n σ ′
+∆; θ; σ; c ⇒n+1 σ ′
+∆; θ; σ; c ⇒0 σ
+21
+
+A execução do comando iterate contendo uma variável é similar:
+1. Primeiro executamos a expressão e de forma a obter um valor inteiro n ou um arranjo A;
+2. Caso e avalie para um inteiro, cria-se um arranjo A contendo os valores de n a 1, em ordem
+decrescente;
+3. Em seguida, realizamos uma quantidade de iterações do comando c equivalente ao tamanho
+de A com a variável inicializada com o valor do próximo elemento do arranjo a cada iteração.
+∆; θ; σ; e ⇒e n A = {n, n − 1, ..., 1} v; A; ∆; θ; σ; c ⇒n σ ′
+∆; θ; σ; iterate v e c ⇒c σ ′
+∆; θ; σ; e ⇒e A v; A; ∆; θ; σ; c ⇒n σ ′
+∆; θ; σ; iterate v e c ⇒c σ ′
+v; A; ∆; θ; σ[v 7→ A[|A| − n + 1]; c ⇒c σ1 v; A; ∆; θ; σ1 ; c ⇒n σ ′
+v; A; ∆; θ; σ; c ⇒n+1 σ ′
+v; A; ∆; θ; σ; c ⇒0 σ
+Para a semântica de comandos que realizam entrada e saída, vamos considerar funções primitivas para realizar a leitura e escrita utilizando a entrada / saída padrão. A função print é a
+função primitiva que realiza a impressão de valores no console e read realiza a leitura de valores.
+∆; θ; σ; e ⇒e val print val val = read ∆; θ; σ; e ⇒e lv ∆; θ; σ; lv = val ⇒c σ ′
+∆; θ; σ; print e ⇒c σ
+∆; θ; σ; read e ⇒c σ ′
+A semântica do comando return avalia as expressões e as retorna em forma de um arranjo.
+∆; θ; σ; es ⇒es val1 ...valn • A = {val1 , ..., valn }
+∆; θ; σ; return es ⇒c σ; A
+Finalmente, chamadas de funções permitem utilizar acesso a campos ou variáveis para receber o
+valor produzido pela chamada da função em questão. A única diferença de chamadas de funções
+a nível de expressões é que enquanto comandos, funções podem realizar atribuições para receber
+o valor retornado.
+∆; θ; σ; es1 ⇒es vals1
+∆; θ; σ; es2 ⇒es lv1 ...lvn
+θ(v) = v(x :: τ ) ts cs
+σ1 = σ ∪ {(xi , vals1i ) | 1 ≤ i ≤ |vals1 |}
+∆; θ; σ1 ; cs ⇒cs σ ′′ ; {val1 , ..., valn }
+cs2 = {lvi = vali | 1 ≤ i ≤ n}
+∆; θ; σ ′′ ; cs2 ⇒cs σ ′
+Θ; θ; σ; v(es1 ) [es2 ] ⇒c σ ′
+22
+
+3.2.3
+
+Semântica de Programas
+
+A execução de programas completos se dá pela avalição de sua função main.
+Com isso, terminamos a especificação da linguagem lang.
+
+23
+
+

@@ -39,7 +39,7 @@ public class AstBuilder extends LangBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitExpLiteral(LangParser.ExpLiteralContext ctx) {
+    public Node visitPrimaryExpLiteral(LangParser.PrimaryExpLiteralContext ctx) {
         if (ctx.literal().INT() != null) {
             return new IntLiteral(Integer.parseInt(ctx.literal().INT().getText()));
         }
@@ -81,7 +81,7 @@ public class AstBuilder extends LangBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitExpLValue(LangParser.ExpLValueContext ctx) {
+    public Node visitPrimaryExpLValue(LangParser.PrimaryExpLValueContext ctx) {
         return visit(ctx.lvalue());
     }
 
@@ -91,13 +91,64 @@ public class AstBuilder extends LangBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitExpUn(LangParser.ExpUnContext ctx) {
-        return new UnaryExp((Exp) visit(ctx.exp()), ctx.getChild(0).getText());
+    public Node visitUnaryExpOp(LangParser.UnaryExpOpContext ctx) {
+        return new UnaryExp((Exp) visit(ctx.unaryExp()), ctx.getChild(0).getText());
     }
 
     @Override
-    public Node visitExpParen(LangParser.ExpParenContext ctx) {
+    public Node visitPrimaryExpParen(LangParser.PrimaryExpParenContext ctx) {
         return visit(ctx.exp());
+    }
+
+    // Métodos de redirecionamento para a nova hierarquia de expressões
+    @Override
+    public Node visitExpEquality(LangParser.ExpEqualityContext ctx) {
+        return visit(ctx.equalityExp());
+    }
+
+    @Override
+    public Node visitEqualityExpOp(LangParser.EqualityExpOpContext ctx) {
+        return new BinaryExp((Exp) visit(ctx.equalityExp(0)), (Exp) visit(ctx.equalityExp(1)), ctx.getChild(1).getText());
+    }
+
+    @Override
+    public Node visitEqualityExpRelational(LangParser.EqualityExpRelationalContext ctx) {
+        return visit(ctx.relationalExp());
+    }
+
+    @Override
+    public Node visitRelationalExpOp(LangParser.RelationalExpOpContext ctx) {
+        return new BinaryExp((Exp) visit(ctx.additiveExp(0)), (Exp) visit(ctx.additiveExp(1)), ctx.getChild(1).getText());
+    }
+
+    @Override
+    public Node visitRelationalExpAdditive(LangParser.RelationalExpAdditiveContext ctx) {
+        return visit(ctx.additiveExp());
+    }
+
+    @Override
+    public Node visitAdditiveExpOp(LangParser.AdditiveExpOpContext ctx) {
+        return new BinaryExp((Exp) visit(ctx.additiveExp(0)), (Exp) visit(ctx.additiveExp(1)), ctx.getChild(1).getText());
+    }
+
+    @Override
+    public Node visitAdditiveExpMultiplicative(LangParser.AdditiveExpMultiplicativeContext ctx) {
+        return visit(ctx.multiplicativeExp());
+    }
+
+    @Override
+    public Node visitMultiplicativeExpOp(LangParser.MultiplicativeExpOpContext ctx) {
+        return new BinaryExp((Exp) visit(ctx.multiplicativeExp(0)), (Exp) visit(ctx.multiplicativeExp(1)), ctx.getChild(1).getText());
+    }
+
+    @Override
+    public Node visitMultiplicativeExpUnary(LangParser.MultiplicativeExpUnaryContext ctx) {
+        return visit(ctx.unaryExp());
+    }
+
+    @Override
+    public Node visitUnaryExpPrimary(LangParser.UnaryExpPrimaryContext ctx) {
+        return visit(ctx.primaryExp());
     }
 
     @Override

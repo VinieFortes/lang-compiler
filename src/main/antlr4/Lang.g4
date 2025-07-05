@@ -31,16 +31,41 @@ lvalue
 exps: exp (',' exp)*;
 
 exp
-    : exp (MUL | DIV | MOD) exp  #ExpOp
-    | exp (ADD | SUB) exp      #ExpOp
-    | exp (LT | EQ | NEQ) exp  #ExpOp
-    | exp AND exp              #ExpOp
-    | (SUB | NOT) exp          #ExpUn
-    | lvalue                   #ExpLValue
-    | ID '(' exps? ')' '[' exp ']' #ExpFunCallReturn
-    | NEW type ('[' exp ']')?  #ExpNew
-    | literal                  #ExpLiteral
-    | '(' exp ')'              #ExpParen
+    : exp AND exp              #ExpOp
+    | equalityExp              #ExpEquality
+    ;
+
+equalityExp
+    : equalityExp (EQ | NEQ) equalityExp  #EqualityExpOp
+    | relationalExp                       #EqualityExpRelational
+    ;
+
+relationalExp
+    : additiveExp LT additiveExp  #RelationalExpOp
+    | additiveExp                 #RelationalExpAdditive
+    ;
+
+additiveExp
+    : additiveExp (ADD | SUB) additiveExp  #AdditiveExpOp
+    | multiplicativeExp                    #AdditiveExpMultiplicative
+    ;
+
+multiplicativeExp
+    : multiplicativeExp (MUL | DIV | MOD) multiplicativeExp  #MultiplicativeExpOp
+    | unaryExp                                               #MultiplicativeExpUnary
+    ;
+
+unaryExp
+    : (SUB | NOT) unaryExp     #UnaryExpOp
+    | primaryExp               #UnaryExpPrimary
+    ;
+
+primaryExp
+    : lvalue                   #PrimaryExpLValue
+    | ID '(' exps? ')' '[' exp ']' #PrimaryExpFunCallReturn
+    | NEW type ('[' exp ']')?  #PrimaryExpNew
+    | literal                  #PrimaryExpLiteral
+    | '(' exp ')'              #PrimaryExpParen
     ;
 literal: INT | FLOAT | CHAR | TRUE | FALSE | NULL;
 

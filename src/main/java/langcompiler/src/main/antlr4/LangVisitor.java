@@ -154,33 +154,12 @@ public interface LangVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExps(LangParser.ExpsContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code ExpLValue}
+	 * Visit a parse tree produced by the {@code ExpEquality}
 	 * labeled alternative in {@link LangParser#exp}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitExpLValue(LangParser.ExpLValueContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code ExpUn}
-	 * labeled alternative in {@link LangParser#exp}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitExpUn(LangParser.ExpUnContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code ExpFunCallReturn}
-	 * labeled alternative in {@link LangParser#exp}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitExpFunCallReturn(LangParser.ExpFunCallReturnContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code ExpLiteral}
-	 * labeled alternative in {@link LangParser#exp}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitExpLiteral(LangParser.ExpLiteralContext ctx);
+	T visitExpEquality(LangParser.ExpEqualityContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code ExpOp}
 	 * labeled alternative in {@link LangParser#exp}.
@@ -189,19 +168,110 @@ public interface LangVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpOp(LangParser.ExpOpContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code ExpParen}
-	 * labeled alternative in {@link LangParser#exp}.
+	 * Visit a parse tree produced by the {@code EqualityExpOp}
+	 * labeled alternative in {@link LangParser#equalityExp}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitExpParen(LangParser.ExpParenContext ctx);
+	T visitEqualityExpOp(LangParser.EqualityExpOpContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code ExpNew}
-	 * labeled alternative in {@link LangParser#exp}.
+	 * Visit a parse tree produced by the {@code EqualityExpRelational}
+	 * labeled alternative in {@link LangParser#equalityExp}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitExpNew(LangParser.ExpNewContext ctx);
+	T visitEqualityExpRelational(LangParser.EqualityExpRelationalContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code RelationalExpOp}
+	 * labeled alternative in {@link LangParser#relationalExp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRelationalExpOp(LangParser.RelationalExpOpContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code RelationalExpAdditive}
+	 * labeled alternative in {@link LangParser#relationalExp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRelationalExpAdditive(LangParser.RelationalExpAdditiveContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AdditiveExpMultiplicative}
+	 * labeled alternative in {@link LangParser#additiveExp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAdditiveExpMultiplicative(LangParser.AdditiveExpMultiplicativeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AdditiveExpOp}
+	 * labeled alternative in {@link LangParser#additiveExp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAdditiveExpOp(LangParser.AdditiveExpOpContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code MultiplicativeExpUnary}
+	 * labeled alternative in {@link LangParser#multiplicativeExp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMultiplicativeExpUnary(LangParser.MultiplicativeExpUnaryContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code MultiplicativeExpOp}
+	 * labeled alternative in {@link LangParser#multiplicativeExp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMultiplicativeExpOp(LangParser.MultiplicativeExpOpContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code UnaryExpOp}
+	 * labeled alternative in {@link LangParser#unaryExp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUnaryExpOp(LangParser.UnaryExpOpContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code UnaryExpPrimary}
+	 * labeled alternative in {@link LangParser#unaryExp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUnaryExpPrimary(LangParser.UnaryExpPrimaryContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code PrimaryExpLValue}
+	 * labeled alternative in {@link LangParser#primaryExp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrimaryExpLValue(LangParser.PrimaryExpLValueContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code PrimaryExpFunCallReturn}
+	 * labeled alternative in {@link LangParser#primaryExp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrimaryExpFunCallReturn(LangParser.PrimaryExpFunCallReturnContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code PrimaryExpNew}
+	 * labeled alternative in {@link LangParser#primaryExp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrimaryExpNew(LangParser.PrimaryExpNewContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code PrimaryExpLiteral}
+	 * labeled alternative in {@link LangParser#primaryExp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrimaryExpLiteral(LangParser.PrimaryExpLiteralContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code PrimaryExpParen}
+	 * labeled alternative in {@link LangParser#primaryExp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrimaryExpParen(LangParser.PrimaryExpParenContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link LangParser#literal}.
 	 * @param ctx the parse tree
