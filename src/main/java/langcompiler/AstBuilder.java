@@ -286,4 +286,20 @@ public class AstBuilder extends LangBaseVisitor<Node> {
         Exp index = (Exp) visit(ctx.exp());
         return new FunCallExp(name, arguments, index);
     }
+
+    @Override
+    public Node visitData(LangParser.DataContext ctx) {
+        String typeName = ctx.TYID().getText();
+        List<Parameter> fields = new ArrayList<>();
+        
+        if (ctx.decl() != null) {
+            for (LangParser.DeclContext declCtx : ctx.decl()) {
+                String fieldName = declCtx.ID().getText();
+                String fieldType = declCtx.type().getText();
+                fields.add(new Parameter(fieldName, fieldType));
+            }
+        }
+        
+        return new DataDef(typeName, fields);
+    }
 }
