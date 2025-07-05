@@ -30,11 +30,13 @@ class ExecutionResult<T> {
 
 public class Interpreter<T> {
     private final Stack<Map<String, Object>> scopes = new Stack<>();
+    private final Stack<Boolean> scopeTypes = new Stack<>(); // true = função, false = bloco
     private final Map<String, FunDef> functions = new HashMap<>();
     private final Map<String, DataDef> dataTypes = new HashMap<>();
 
     public Interpreter() {
         scopes.push(new HashMap<>()); // Escopo global
+        scopeTypes.push(false); // Escopo global é tratado como bloco
     }
 
     public void execute(Node node) {
@@ -42,12 +44,27 @@ public class Interpreter<T> {
     }
 
     private void assign(String name, Object value) {
+        // Verifica se o escopo atual é de uma função
+        if (!scopeTypes.isEmpty() && scopeTypes.peek()) {
+            // Se for uma função, a atribuição é sempre local para o escopo da função
+            scopes.peek().put(name, value);
+            return;
+        }
+
+        // Se não for uma função, procura a variável nos escopos de bloco aninhados
         for (int i = scopes.size() - 1; i >= 0; i--) {
             if (scopes.get(i).containsKey(name)) {
+                // Para quando encontrar a variável e atualiza
                 scopes.get(i).put(name, value);
                 return;
             }
+            // Se o escopo for de uma função, para a busca para não vazar para escopos superiores
+            if (scopeTypes.get(i)) {
+                break;
+            }
         }
+
+        // Se não encontrou, cria no escopo atual
         scopes.peek().put(name, value);
     }
 
@@ -163,14 +180,17 @@ public class Interpreter<T> {
     @SuppressWarnings("unchecked")
     public T visit(Block block) {
         scopes.push(new HashMap<>());
+        scopeTypes.push(false); // Bloco, não função
         for (Cmd cmd : block.cmds) {
             ExecutionResult<T> result = (ExecutionResult<T>) cmd.accept(this);
-            if (result.shouldReturn) {
+            if (result != null && result.shouldReturn) {
                 scopes.pop();
+                scopeTypes.pop();
                 return (T) result;
             }
         }
         scopes.pop();
+        scopeTypes.pop();
         return (T) ExecutionResult.forValue(null);
     }
 
@@ -531,6 +551,7 @@ public class Interpreter<T> {
         }
 
         scopes.push(new HashMap<>());
+        scopeTypes.push(true); // Escopo de função
         for (int i = 0; i < funDef.getParameters().size(); i++) {
             scopes.peek().put(funDef.getParameters().get(i).getName(), argValues.get(i));
         }
@@ -538,6 +559,7 @@ public class Interpreter<T> {
         ExecutionResult<T> result = (ExecutionResult<T>) funDef.getBody().accept(this);
 
         scopes.pop();
+        scopeTypes.pop();
 
         if (result.shouldReturn && result.value instanceof List) {
             return (List<Object>) result.value;
