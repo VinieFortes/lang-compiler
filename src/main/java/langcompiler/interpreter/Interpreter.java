@@ -409,11 +409,23 @@ public class Interpreter<T> {
                             }
                     }
                 }
-                throw new RuntimeException("Operador aritmetico '" + exp.op + "' exige tipos numericos. Tipos recebidos: " + leftVal.getClass().getSimpleName() + " e " + rightVal.getClass().getSimpleName());
+                String leftType = leftVal == null ? "null" : leftVal.getClass().getSimpleName();
+                String rightType = rightVal == null ? "null" : rightVal.getClass().getSimpleName();
+                throw new RuntimeException("Operador aritmetico '" + exp.op + "' exige tipos numericos. Tipos recebidos: " + leftType + " e " + rightType);
 
             case "==":
             case "!=":
             case "<":
+                // Tratamento especial para valores nulos
+                if (leftVal == null || rightVal == null) {
+                    switch (exp.op) {
+                        case "==": return (T) Boolean.valueOf(leftVal == rightVal);
+                        case "!=": return (T) Boolean.valueOf(leftVal != rightVal);
+                        case "<":  
+                            throw new RuntimeException("Operador '<' nao pode ser usado com valores nulos");
+                    }
+                }
+                
                 // Comparação de Doubles/Floats
                 if (leftVal instanceof Number && rightVal instanceof Number) {
                     double l = ((Number) leftVal).doubleValue();
@@ -434,7 +446,9 @@ public class Interpreter<T> {
                         case "<":  return (T) Boolean.valueOf(l < r);
                     }
                 }
-                throw new RuntimeException("Operador de comparacao '" + exp.op + "' nao suportado para os tipos: " + leftVal.getClass().getSimpleName() + " e " + rightVal.getClass().getSimpleName());
+                String leftTypeComp = leftVal == null ? "null" : leftVal.getClass().getSimpleName();
+                String rightTypeComp = rightVal == null ? "null" : rightVal.getClass().getSimpleName();
+                throw new RuntimeException("Operador de comparacao '" + exp.op + "' nao suportado para os tipos: " + leftTypeComp + " e " + rightTypeComp);
 
             case "&&":
                 if (leftVal instanceof Boolean && rightVal instanceof Boolean) {

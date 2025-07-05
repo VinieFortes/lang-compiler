@@ -1,4 +1,0 @@
-main() {
-    print 3;
-    print '\n';
-}
