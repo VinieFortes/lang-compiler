@@ -56,27 +56,99 @@ run_irt_tests() {
         local test_path_and_name=$(basename "$file" .lan)
         local test_dir=$(dirname "$file")
         local expected_output_file="$test_dir/$test_path_and_name.inst"
-        local temp_output_file="temp_output.txt"
 
         echo -e "---------------------------------"
         echo -e "Rodando teste: ${YELLOW}${file#$TEST_DIR/}${NC}"
 
         if [ -f "$expected_output_file" ]; then
-            echo "Saída do seu programa:"
-            # MODIFICADO para usar 'run-only'
-            make run-only ARGS="-i \"$file\"" 2>/dev/null | tee "$temp_output_file"
-
-            if diff -wB "$temp_output_file" "$expected_output_file" > /dev/null; then
-                echo -e "[ ${GREEN}PASS${NC} ] A saída corresponde ao esperado."
+            local all_passed=true
+            local case_num=1
+            
+            # Processa cada caso de teste no arquivo .inst
+            local in_input=false
+            local in_output=false
+            local current_input=""
+            local current_output=""
+            
+            while IFS= read -r line; do
+                if [[ "$line" == "---in----" ]]; then
+                    # Se já tínhamos um caso anterior, testa ele
+                    if [[ -n "$current_input" || -n "$current_output" ]]; then
+                        echo "  Caso de teste $case_num:"
+                        
+                        echo "$current_input" > "temp_input_$case_num.txt"
+                        echo "$current_output" > "temp_expected_$case_num.txt"
+                        
+                        make run-only ARGS="-i \"$file\"" < "temp_input_$case_num.txt" > "temp_actual_$case_num.txt" 2>/dev/null
+                        
+                        if diff -wB "temp_actual_$case_num.txt" "temp_expected_$case_num.txt" > /dev/null; then
+                            echo -e "    [ ${GREEN}PASS${NC} ]"
+                        else
+                            echo -e "    [ ${RED}FAIL${NC} ]"
+                            echo "    Entrada:"
+                            cat "temp_input_$case_num.txt" | sed 's/^/      /'
+                            echo "    Esperado:"
+                            cat "temp_expected_$case_num.txt" | sed 's/^/      /'
+                            echo "    Obtido:"
+                            cat "temp_actual_$case_num.txt" | sed 's/^/      /'
+                            all_passed=false
+                        fi
+                        rm -f "temp_input_$case_num.txt" "temp_expected_$case_num.txt" "temp_actual_$case_num.txt"
+                        ((case_num++))
+                    fi
+                    in_input=true
+                    in_output=false
+                    current_input=""
+                    current_output=""
+                elif [[ "$line" == "---out---" ]]; then
+                    in_input=false
+                    in_output=true
+                elif [[ "$in_input" == true ]]; then
+                    if [[ -n "$current_input" ]]; then
+                        current_input="$current_input"$'\n'"$line"
+                    else
+                        current_input="$line"
+                    fi
+                elif [[ "$in_output" == true ]]; then
+                    if [[ -n "$current_output" ]]; then
+                        current_output="$current_output"$'\n'"$line"
+                    else
+                        current_output="$line"
+                    fi
+                fi
+            done < "$expected_output_file"
+            
+            # Processa o último caso
+            if [[ -n "$current_input" || -n "$current_output" ]]; then
+                echo "  Caso de teste $case_num:"
+                
+                echo "$current_input" > "temp_input_$case_num.txt"
+                echo "$current_output" > "temp_expected_$case_num.txt"
+                
+                make run-only ARGS="-i \"$file\"" < "temp_input_$case_num.txt" > "temp_actual_$case_num.txt" 2>/dev/null
+                
+                if diff -wB "temp_actual_$case_num.txt" "temp_expected_$case_num.txt" > /dev/null; then
+                    echo -e "    [ ${GREEN}PASS${NC} ]"
+                else
+                    echo -e "    [ ${RED}FAIL${NC} ]"
+                    echo "    Entrada:"
+                    cat "temp_input_$case_num.txt" | sed 's/^/      /'
+                    echo "    Esperado:"
+                    cat "temp_expected_$case_num.txt" | sed 's/^/      /'
+                    echo "    Obtido:"
+                    cat "temp_actual_$case_num.txt" | sed 's/^/      /'
+                    all_passed=false
+                fi
+                rm -f "temp_input_$case_num.txt" "temp_expected_$case_num.txt" "temp_actual_$case_num.txt"
+            fi
+            
+            if [ "$all_passed" = true ]; then
+                echo -e "[ ${GREEN}PASS${NC} ] Todos os casos passaram."
                 ((PASSED_COUNT++))
             else
-                echo -e "[ ${RED}FAIL${NC} ] A saída NÃO corresponde ao esperado."
-                echo "--- Diferença (Sua Saída vs Saída Esperada) ---"
-                diff -wB --side-by-side "$temp_output_file" "$expected_output_file" || true
-                echo "-------------------------------------------------"
+                echo -e "[ ${RED}FAIL${NC} ] Alguns casos falharam."
                 ((FAILED_COUNT++))
             fi
-            rm "$temp_output_file"
         else
              echo -e "${YELLOW}Aviso: Arquivo .inst não encontrado para '${file#$TEST_DIR/}'. Teste ignorado.${NC}"
         fi

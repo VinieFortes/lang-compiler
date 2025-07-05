@@ -182,7 +182,21 @@ public class Interpreter<T> {
     public T visit(ReadCmd cmd) {
         if (cmd.lvalue instanceof LValueId) {
             LValueId lvalueId = (LValueId) cmd.lvalue;
-            assign(lvalueId.id, 0); // Simula leitura
+            try {
+                // Read actual input from System.in
+                int value = System.in.read();
+                while (Character.isWhitespace(value)) {
+                    value = System.in.read();
+                }
+                StringBuilder number = new StringBuilder();
+                while (!Character.isWhitespace(value) && value != -1) {
+                    number.append((char) value);
+                    value = System.in.read();
+                }
+                assign(lvalueId.id, Integer.parseInt(number.toString()));
+            } catch (Exception e) {
+                throw new RuntimeException("Erro ao ler entrada: " + e.getMessage());
+            }
         }
         return (T) ExecutionResult.forValue(null);
     }
