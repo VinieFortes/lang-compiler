@@ -1,30 +1,26 @@
 package langcompiler;
 
 import langcompiler.ast.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class AstBuilder extends LangBaseVisitor<Node> {
 
     @Override
     public Node visitProg(LangParser.ProgContext ctx) {
+        if (ctx.getChild(0) instanceof LangParser.CmdContext) {
+            return new Program(
+                    ctx.cmd().stream()
+                            .map(this::visit)
+                            .filter(java.util.Objects::nonNull)
+                            .collect(Collectors.toList())
+            );
+        }
         return new Program(
                 ctx.children.stream()
                         .map(this::visit)
                         .filter(java.util.Objects::nonNull)
                         .collect(Collectors.toList())
         );
-    }
-
-    // NOVO: Método para tratar o comando 'return'
-    @Override
-    public Node visitCmdReturn(LangParser.CmdReturnContext ctx) {
-        List<Exp> exps = new ArrayList<>();
-        for (LangParser.ExpContext expCtx : ctx.exp()) {
-            exps.add((Exp) visit(expCtx));
-        }
-        return new ReturnCmd(exps);
     }
 
     @Override
@@ -53,11 +49,13 @@ public class AstBuilder extends LangBaseVisitor<Node> {
         if (ctx.literal().FALSE() != null) {
             return new BoolLiteral(false);
         }
+        // MODIFICADO: Lógica robusta para tratar caracteres e escapes
         if (ctx.literal().CHAR() != null) {
             String text = ctx.literal().CHAR().getText();
-            String unquoted = text.substring(1, text.length() - 1);
+            String unquoted = text.substring(1, text.length() - 1); // Remove as aspas
 
             if (unquoted.startsWith("\\")) {
+                // É uma sequência de escape
                 String escape = unquoted.substring(1);
                 switch (escape) {
                     case "n": return new CharLiteral('\n');
@@ -67,6 +65,7 @@ public class AstBuilder extends LangBaseVisitor<Node> {
                     case "'": return new CharLiteral('\'');
                     case "\\": return new CharLiteral('\\');
                     default:
+                        // Verifica se é um código ASCII \ddd
                         if (escape.matches("[0-9]{3}")) {
                             int asciiCode = Integer.parseInt(escape);
                             return new CharLiteral((char) asciiCode);
@@ -74,6 +73,7 @@ public class AstBuilder extends LangBaseVisitor<Node> {
                         throw new RuntimeException("Sequencia de escape invalida: " + unquoted);
                 }
             } else {
+                // É um caractere normal
                 return new CharLiteral(unquoted.charAt(0));
             }
         }
