@@ -1,4 +1,7 @@
-# --- Salve na raiz do projeto: lang-compiler/makefile ---
+# Vinicius da Silva Fortes
+# Matricula 201935029
+
+# --- Configuração ---
 
 JAVAC := javac -Xlint:unchecked
 ANTLR_JAR := /home/vinicius/IdeaProjects/lang-compiler/antlr-4.13.2-complete.jar

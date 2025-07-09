@@ -1,3 +1,5 @@
+// Vinicius da Silva Fortes
+// Matricula 201935029
 grammar Lang;
 
 prog: (def | cmd)* EOF;
@@ -102,7 +104,6 @@ LT: '<'; EQ: '=='; NEQ: '!=';
 ADD: '+'; SUB: '-'; MUL: '*'; DIV: '/'; MOD: '%';
 AND: '&&'; NOT: '!';
 
-// MODIFICADO: para aceitar \ddd
 fragment ESCAPE_SEQ: '\\' ( [ntbr\\'] | [0-9][0-9][0-9] );
 
 WS: [ \t\r\n]+ -> skip;

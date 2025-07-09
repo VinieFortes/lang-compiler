@@ -1,3 +1,5 @@
+// Vinicius da Silva Fortes
+// Matricula 201935029
 package langcompiler;
 
 import langcompiler.ast.Node;
@@ -21,7 +23,6 @@ public class Main {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         LangParser parser = new LangParser(tokens);
 
-        // Remover listeners padrão e adicionar custom para lexer e parser
         lexer.removeErrorListeners();
         parser.removeErrorListeners();
         CustomErrorListener errorListener = new CustomErrorListener();

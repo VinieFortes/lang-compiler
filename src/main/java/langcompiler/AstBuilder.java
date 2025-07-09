@@ -1,3 +1,5 @@
+// Vinicius da Silva Fortes
+// Matricula 201935029
 package langcompiler;
 
 import langcompiler.ast.*;
@@ -63,7 +65,6 @@ public class AstBuilder extends LangBaseVisitor<Node> {
         if (ctx.literal().NULL() != null) {
             return new NullLiteral();
         }
-        // MODIFICADO: Lógica robusta para tratar caracteres e escapes
         if (ctx.literal().CHAR() != null) {
             String text = ctx.literal().CHAR().getText();
             String unquoted = text.substring(1, text.length() - 1); // Remove as aspas
@@ -114,7 +115,6 @@ public class AstBuilder extends LangBaseVisitor<Node> {
         return visit(ctx.exp());
     }
 
-    // Métodos de redirecionamento para a nova hierarquia de expressões
     @Override
     public Node visitExpEquality(LangParser.ExpEqualityContext ctx) {
         return visit(ctx.equalityExp());

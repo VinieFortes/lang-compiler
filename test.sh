@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Removido 'set -e' para garantir que todos os testes rodem
+# Vinicius da Silva Fortes
+# Matricula 201935029
 
 # --- Configuração ---
 TEST_DIR="testes"
